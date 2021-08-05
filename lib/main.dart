@@ -1,9 +1,12 @@
+//! packages importing
 import 'package:flutter/material.dart';
-
+//! dart files importing
 import './widgets/new_transaction.dart';
 import './widgets/transaction_list.dart';
 import './widgets/chart.dart';
 import './models/transaction.dart';
+import './widgets/db_connection.dart';
+import 'package:dio/dio.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,12 +16,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Personal Expenses',
       theme: ThemeData(
-          primarySwatch: Colors.purple,
+          primarySwatch: Colors.blue,
           accentColor: Colors.amber,
-          // errorColor: Colors.red,
           fontFamily: 'Quicksand',
           textTheme: ThemeData.light().textTheme.copyWith(
-                title: TextStyle(
+                headline6: TextStyle(
                   fontFamily: 'OpenSans',
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
@@ -27,7 +29,7 @@ class MyApp extends StatelessWidget {
               ),
           appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
-                  title: TextStyle(
+                  headline6: TextStyle(
                     fontFamily: 'OpenSans',
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -40,27 +42,12 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  // String titleInput;
-  // String amountInput;
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _userTransactions = [
-    // Transaction(
-    //   id: 't1',
-    //   title: 'New Shoes',
-    //   amount: 69.99,
-    //   date: DateTime.now(),
-    // ),
-    // Transaction(
-    //   id: 't2',
-    //   title: 'Weekly Groceries',
-    //   amount: 16.53,
-    //   date: DateTime.now(),
-    // ),
-  ];
+  final List<Transaction> _userTransactions = [];
 
   List<Transaction> get _recentTransactions {
     return _userTransactions.where((tx) {
@@ -72,6 +59,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
+  void getHttp() async {
+    print("----------------------------------------------------");
+    try {
+      var response = await Dio()
+          .get('http://192.168.1.149/pannello/download/zmat/flutter');
+
+      for (var i = 0; i < response.data.length; i++) {
+        print(response.data[i]);
+
+        _addNewTransaction("Ins${i}", double.parse(i.toString()), DateTime.now());
+      }
+    } catch (e) {
+      print(e);
+    }
+    print("----------------------------------------------------");
+  }
+
   void _addNewTransaction(
       String txTitle, double txAmount, DateTime chosenDate) {
     final newTx = Transaction(
@@ -81,6 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       id: DateTime.now().toString(),
     );
 
+    print(newTx);
     setState(() {
       _userTransactions.add(newTx);
     });
@@ -110,12 +115,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Personal Expenses',
+          'Calcolatore di spese personali',
         ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => _startAddNewTransaction(context),
+            onPressed: () => getHttp(),
           ),
         ],
       ),
