@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 class NewTransaction extends StatefulWidget {
   final Function addTx;
@@ -52,6 +53,30 @@ class _NewTransactionState extends State<NewTransaction> {
     print('...');
   }
 
+  void compilatitolo() async {
+    String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+        "#ff6666", "Annulla", false, ScanMode.BARCODE);
+    if (barcodeScanRes != null) {
+      barcodeScanRes = barcodeScanRes.toUpperCase();
+    }
+    print("============================================");
+    print(barcodeScanRes);
+    _titleController.text = barcodeScanRes;
+    print("============================================");
+  }
+
+  void compilaubicazione() async {
+    String barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+        "#ff6666", "Annulla", false, ScanMode.BARCODE);
+    if (barcodeScanRes != null) {
+      barcodeScanRes = barcodeScanRes.toUpperCase();
+    }
+    print("============================================");
+    print(barcodeScanRes);
+    _amountController.text = barcodeScanRes;
+    print("============================================");
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -62,7 +87,13 @@ class _NewTransactionState extends State<NewTransaction> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
             TextField(
-              decoration: InputDecoration(labelText: 'Titolo'),
+              decoration: InputDecoration(
+                labelText: 'Codice Art.',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.camera_alt_outlined),
+                  onPressed: () => compilatitolo(),
+                ),
+              ),
               controller: _titleController,
               onSubmitted: (_) => _submitData(),
               // onChanged: (val) {
@@ -70,9 +101,16 @@ class _NewTransactionState extends State<NewTransaction> {
               // },
             ),
             TextField(
-              decoration: InputDecoration(labelText: 'Spese'),
+              decoration: InputDecoration(
+                labelText: 'Ubicazione',
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.camera_alt_outlined),
+                  onPressed: () => compilaubicazione(),
+                ),
+              ),
               controller: _amountController,
-              keyboardType: TextInputType.number,
+
+              //keyboardType: TextInputType.number,
               onSubmitted: (_) => _submitData(),
               // onChanged: (val) => amountInput = val,
             ),
@@ -90,7 +128,7 @@ class _NewTransactionState extends State<NewTransaction> {
                   FlatButton(
                     textColor: Theme.of(context).primaryColor,
                     child: Text(
-                      'Choose Date',
+                      'Seleziona Data',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
@@ -101,7 +139,7 @@ class _NewTransactionState extends State<NewTransaction> {
               ),
             ),
             RaisedButton(
-              child: Text('Aggiungi'),
+              child: Text('Inserisci'),
               color: Theme.of(context).primaryColor,
               textColor: Theme.of(context).textTheme.button.color,
               onPressed: _submitData,

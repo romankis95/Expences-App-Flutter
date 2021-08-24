@@ -7,6 +7,7 @@ import './widgets/chart.dart';
 import './models/transaction.dart';
 import './widgets/db_connection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Personal Expenses',
       theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.green,
           accentColor: Colors.amber,
           fontFamily: 'Quicksand',
           textTheme: ThemeData.light().textTheme.copyWith(
@@ -62,15 +63,16 @@ class _MyHomePageState extends State<MyHomePage> {
   void getHttp() async {
     print("----------------------------------------------------");
     try {
+      //remember dio doesnt work on web apps only mobile, so you will get an error on working code
       var response = await Dio()
           .get('http://192.168.1.149/pannello/download/zmat/flutter');
-
       for (var i = 0; i < response.data.length; i++) {
         print(response.data[i]);
 
-        _addNewTransaction("Ins${i}", double.parse(i.toString()), DateTime.now());
+        _addNewTransaction("${response.data[i]["MATNR"]}",
+            double.parse(i.toString()), DateTime.now());
       }
-    } catch (e) {
+    } on Exception catch (e) {
       print(e);
     }
     print("----------------------------------------------------");
@@ -107,6 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void _deleteTransaction(String id) {
     setState(() {
       _userTransactions.removeWhere((tx) => tx.id == id);
+
+      //qua sarebbe comodo eseguire una api call con dio per rimuovere dal db l'eventuale record
     });
   }
 
@@ -115,12 +119,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Calcolatore di spese personali',
+          'Magazzino Italtergi',
         ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => getHttp(),
+            //onPressed: () => getHttp(),
+            onPressed: () => FlutterBarcodeScanner.scanBarcode("#ff6666", "Cancel", false, ScanMode.DEFAULT),
           ),
         ],
       ),
